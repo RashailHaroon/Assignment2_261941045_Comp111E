@@ -1,0 +1,203 @@
+import pickle
+import random
+import datetime
+class Movie:
+    def __init__(self,movie_name,seats):
+        self.movie_name=movie_name
+        self.seats=seats
+    def display_movie(self):
+        return self.movie_name
+    def display_seat(self):
+        return self.seats
+    def updating_seats(self,booked_seat): #this will execute when the user booked the seats and the remaining seats will appear
+        self.seats-=booked_seat
+        
+        return f"The seats are: {booked_seat}"
+class Screen:
+    def __init__(self,screen_num):
+        self.screen_num=screen_num
+        self.time=[]
+    def allocate_screen(self):
+        pass
+    def allocate_time(self):
+        pass
+class Timeslot:
+    def __init__(self,start_time,end_time,screening_date):
+        self.start_time=start_time
+        self.end_time=end_time
+        self.screening_date=screening_date
+    def congiguretime(self): #managing time
+        pass
+
+class Booking:
+    def __init__(self,booking_id,num_seats,movie,screening_date):
+        self.booking_id=booking_id
+        self.num_seats=num_seats
+        self.movie=movie
+        self.screening_date=screening_date
+    def selection(self):
+        pass
+    def generate_id(self):
+        pass 
+    
+class Admin:
+    def __init__(self):
+        self.movies=[]
+        self.screens=[]
+        self.time=[]
+    def add_movies(self):
+        movie_name=input("Enter the movie name: ")
+        seats=input("Enter the total number of seats: ")
+        movie=Movie(movie_name,seats)
+        self.movies.append(movie)
+        print("Movie added successfully ")
+    def add_screen(self):
+        screen_num=input("Enter the screen number: ")
+        screen=Screen(screen_num)
+        self.screens.append(screen)
+        print("The screens are added successfully")
+    def add_time(self):
+        start_time=input("Enter the starting time of the movie(HH:MM): ")
+        end_time=input("Enter the ending time of movie(HH/MM): ")
+        screening_date=input("Enter the screening date(DD/MM/YYYY): ")
+        timeslot=Timeslot(start_time,end_time,screening_date)
+        self.time.append(timeslot)
+        print("The timeslot is added successfully")
+    def access_system(self):
+        while True:
+            print("Menu")
+            print("1. Add Movies (To add multiple movies click on 1 again and again: )")
+            print("2. Add Screens ( click on 2 again and again to add screens)")
+            print("3. Add Timeslot")
+            print("4. Exit")
+
+            choice=input("Enter your choice: ")
+
+            if choice=="1":
+                self.add_movies()
+            elif choice=="2":
+                self.add_screen()
+            elif choice=="3":
+                self.add_time()
+            elif choice=="4":
+                print("Exit")
+                break
+            else:
+                print("Invalid choice")
+
+class User:
+    def __init__(self):
+        self.booking_detail=[]
+    def register(self):
+        self.user_name=input("Enter your name: ")
+        self.age=input("Enter your age: ")
+        print("User information: ")
+        print("Username: ",self.user_name)
+        print("Your age: ",self.age)
+        print("Registeration successfull")
+    def login(self):
+        username=input("Enter your username: ")
+        if username==self.user_name:
+            print("Login successfull")
+            return True
+        else: 
+            print("Invalid username.Try again")
+            return False
+    def select_movie(self,movie):
+        print("Select a movie: ")
+        index=1 #index variable is used here to keep track of the movie if we dont use it here the movies from the admin class will not appear in the user class 
+        for m in movie:
+            print(f"{index}. {m.movie_name}, Available seats: {m.seats}")
+            index+=1
+
+        choice=int(input("Enter the movie number: ")) 
+        return movie[choice-1]
+    def choose_seats(self,movie):
+         print(f"{movie.movie_name}, Available seats: {movie.seats}")
+         num_seat=int(input("Enter the number of seats: "))
+         return num_seat
+    
+    def reservation(self, movie, num_seat):
+     booking_id = random.randint(100, 500)
+     screening_date = datetime.datetime.now().strftime("%Y-%m-%d")
+     booking = Booking(booking_id, num_seat, movie.movie_name, screening_date)
+     self.booking_detail.append(booking)
+     print("Your reservation is successful")
+
+def save_data(data, filename):
+    with open(filename, 'wb') as file:
+        pickle.dump(data, file)
+    print("Data saved successfully.")
+
+def load_data(filename):
+    try:
+        with open(filename, 'rb') as file:
+            data = pickle.load(file)
+        print("Data loaded successfully.")
+        return data
+    except FileNotFoundError:
+        print("File not found. Returning empty data.")
+        return None
+
+def admin_menu(admin):
+    while True: 
+        print("Admin's menu: ")
+        print("1. Set system")
+        print("2. Back to Menu")
+
+        ad_choice=input("Enter your choice")
+
+        if ad_choice=="1":
+            admin.access_system()
+        elif ad_choice=="2":
+            print("OK! Exiting.....")
+            break
+        else:
+            print("Invalid choice")
+
+def user_menu(user,movies):
+    while True:
+     print("User Menu")
+     print("1. Signup")
+     print("2. SignIn")
+     print("3. Main Menu ")
+
+     u_choice=input("Enter the numbers: ")
+    
+     if u_choice=="1":
+        user.register()
+     elif u_choice=="2":
+        user.login()
+        selected_movie=user.select_movie(movies)
+        num_seats=user.choose_seats(selected_movie)
+        user.reservation(selected_movie,num_seats)
+     elif u_choice == "3":
+        break
+
+     else: 
+        print("Invalid choice")
+
+def main():
+    admin=Admin()
+    user=User()
+
+    while True:
+        print("1. Admin")
+        print("2. User")
+        print("3. Exit")
+
+        role=input("Enter your role: ")
+
+        if role=="1":
+            admin_menu(admin)
+        elif role=="2":
+            user_menu(user,admin.movies)
+        elif role=="3":
+            print("Exiting......")
+            break
+        else: 
+            print("Invalid role choice")
+
+
+if __name__=="__main__":
+    main()      
